@@ -1,7 +1,8 @@
 ﻿namespace EFCoreQueryFilters.Models;
 
-public class Event : BaseAuditableEntity
+public class EventResponseObject
 {
+    public long Id { get; set; }
     public string? eventCode { get; set; }
     public string? eventName { get; set; }
     public string? eventDescription { get; set; }
