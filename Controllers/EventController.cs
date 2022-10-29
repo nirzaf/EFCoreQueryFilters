@@ -82,10 +82,13 @@ public class EventController : ControllerBase
     }
 
     //Get method to soft deleted events
+    // Hide this API
+    
     [HttpGet]
     public async Task<IActionResult> GetDeletedEvents()
     {
-        var events = await _context.Events.Where(x => x.IsDeleted == true).ToListAsync();
+        var events = await _context.Events.Where(c=>c.IsDeleted)
+            .IgnoreQueryFilters().ToListAsync();
         //Response with EventResponseObject and Map it to EventResponseObject
         var mapper = new MapperConfiguration(cfg => 
             cfg.CreateMap<Event, EventResponseObject>()).CreateMapper();
