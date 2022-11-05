@@ -37,4 +37,52 @@ public class EventDbContext : DbContext
         base.OnModelCreating(modelBuilder);
     }
     
+    // Add Create and Update Auditing before saving changes
+    public override int SaveChanges()
+    {
+        var entries = ChangeTracker.Entries();
+        foreach (var entry in entries)
+        {
+            if (entry is { Entity: Event entity })
+            {
+                switch (entry)
+                {
+                    case { State: EntityState.Added }:
+                        entity.CreatedAt = DateTime.UtcNow;
+                        entity.CreatedBy = CurrentUser.Name;
+                        break;
+                    case { State: EntityState.Modified }:
+                        entity.UpdatedAt = DateTime.UtcNow;
+                        entity.UpdatedBy = CurrentUser.Name;
+                        break;
+                }
+            }
+        }
+        return base.SaveChanges();
+    }
+    
+    // Add Create and Update Auditing before SaveChangesAsync
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
+    {
+        var entries = ChangeTracker.Entries();
+        foreach (var entry in entries)
+        {
+            if (entry is { Entity: Event entity })
+            {
+                switch (entry)
+                {
+                    case { State: EntityState.Added }:
+                        entity.CreatedAt = DateTime.UtcNow;
+                        entity.CreatedBy = CurrentUser.Name;
+                        break;
+                    case { State: EntityState.Modified }:
+                        entity.UpdatedAt = DateTime.UtcNow;
+                        entity.UpdatedBy = CurrentUser.Name;
+                        break;
+                }
+            }
+        }
+        return base.SaveChangesAsync(cancellationToken);
+    }
+    
 }

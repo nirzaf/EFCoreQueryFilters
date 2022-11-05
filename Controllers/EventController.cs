@@ -44,9 +44,14 @@ public class EventController : ControllerBase
     
     //Post method to add new event
     [HttpPost]
-    public async Task<IActionResult> AddEvent(Event newEvent)
+    public async Task<IActionResult> AddEvent(EventPostObject newEvent)
     {
-        _context.Events.Add(newEvent);
+        // Map EventPostObject to Event
+        var mapper = new MapperConfiguration(cfg => 
+            cfg.CreateMap<EventPostObject, Event>()).CreateMapper();
+        
+        var eventToAdd = mapper.Map<Event>(newEvent);
+        await _context.Events.AddAsync(eventToAdd);
         await _context.SaveChangesAsync();
         return Ok();
     }
@@ -81,11 +86,9 @@ public class EventController : ControllerBase
         return Ok();
     }
 
-    //Get method to soft deleted events
-    // Hide this API
     
     [HttpGet]
-    public async Task<IActionResult> GetDeletedEvents()
+    private async Task<IActionResult> GetDeletedEvents()
     {
         var events = await _context.Events.Where(c=>c.IsDeleted)
             .IgnoreQueryFilters().ToListAsync();
